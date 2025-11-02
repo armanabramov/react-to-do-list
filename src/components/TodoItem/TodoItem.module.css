@@ -1,0 +1,54 @@
+.row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 12px;
+	background: #fff;
+	border: 1px solid #eee;
+	border-radius: 8px;
+}
+.text {
+	flex: 1;
+	margin-right: 12px;
+	word-break: break-word;
+	font-size: 15px;
+}
+.controls {
+	display: flex;
+	gap: 8px;
+}
+.btn {
+	padding: 6px 10px;
+	border-radius: 6px;
+	border: 1px solid #1976d2;
+	background: #1976d2;
+	color: #fff;
+	cursor: pointer;
+	font-size: 13px;
+}
+.del {
+	padding: 6px 10px;
+	border-radius: 6px;
+	border: 1px solid #e53935;
+	background: #fff;
+	color: #e53935;
+	cursor: pointer;
+	font-size: 13px;
+}
+.cancel {
+	padding: 6px 10px;
+	border-radius: 6px;
+	border: 1px solid #999;
+	background: #fff;
+	color: #333;
+	cursor: pointer;
+	font-size: 13px;
+}
+.input {
+	flex: 1;
+	margin-right: 12px;
+	padding: 8px 10px;
+	border-radius: 6px;
+	border: 1px solid #ddd;
+	font-size: 14px;
+}

@@ -1,0 +1,12 @@
+.btn {
+	padding: 8px 12px;
+	border-radius: 6px;
+	border: 1px solid #888;
+	background: #fff;
+	cursor: pointer;
+	font-size: 14px;
+}
+.btn[aria-pressed='true'] {
+	background: #f1f8ff;
+	border-color: #1976d2;
+}
