@@ -11,8 +11,10 @@
 		"server": "json-server --watch src/db.json --port 3001 --dellay 3000"
 	},
 	"dependencies": {
+		"json-server": "^0.17.4",
 		"react": "^19.1.1",
-		"react-dom": "^19.1.1"
+		"react-dom": "^19.1.1",
+		"react-router-dom": "^7.9.5"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.33.0",

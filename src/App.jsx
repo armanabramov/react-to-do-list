@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import styles from './App.module.css';
 import { TodosAPI } from './api';
-import { TodoForm, TodoList, SearchBar, SortToggle, Loader } from './components';
+import { Loader } from './components';
+import { MainPage, NotFoundPage, TaskPage } from './pages';
 
 const App = () => {
 	const [todos, setTodos] = useState([]);
 	const [loading, setLoading] = useState(false);
-	const [searchPhrase, setSearchPhrase] = useState('');
-	const [alphabetSort, setAlphabetSort] = useState(false);
 	const [error, setError] = useState(null);
 
 	const fetchTodos = async () => {
@@ -55,38 +55,32 @@ const App = () => {
 		}
 	};
 
-	const query = searchPhrase.trim().toLowerCase();
-	const filtered = query
-		? todos.filter((todo) => (todo.text || '').toLowerCase().includes(query))
-		: todos;
-	const displayed = alphabetSort
-		? [...filtered].sort((a, b) => {
-				const ta = (a.text || '').toLowerCase();
-				const tb = (b.text || '').toLowerCase();
-				return ta.localeCompare(tb);
-			})
-		: filtered;
-
 	return (
 		<div className={styles.container}>
 			<h1 className={styles.title}>Todo (React + Vite)</h1>
-
-			<div className={styles.controls}>
-				<SearchBar onSearch={setSearchPhrase} placeholder="Поиск дел..." />
-				<SortToggle active={alphabetSort} onToggle={() => setAlphabetSort((v) => !v)} />
-			</div>
-
-			<div className={styles.formWrap}>
-				<TodoForm onAdd={addTodo} />
-			</div>
-
-			{error && <div className={styles.error}>{error}</div>}
-
-			{loading ? (
-				<Loader />
-			) : (
-				<TodoList todos={displayed} onUpdate={updateTodo} onDelete={deleteTodo} />
-			)}
+			{loading && <Loader />}
+			{error && !loading && <div className={styles.error}>{error}</div>}
+			<Routes>
+				<Route
+					path="/"
+					element={
+						<MainPage todos={todos} loading={loading} error={error} onAdd={addTodo} />
+					}
+				/>
+				<Route
+					path="/task/:id"
+					element={
+						<TaskPage
+							todos={todos}
+							loading={loading}
+							onUpdate={updateTodo}
+							onDelete={deleteTodo}
+						/>
+					}
+				/>
+				<Route path="/404" element={<NotFoundPage />} />
+				<Route path="*" element={<Navigate to="/404" replace />} />
+			</Routes>
 		</div>
 	);
 };

@@ -17,15 +17,7 @@
 	margin: 0 0 18px;
 	font-size: 22px;
 }
-.controls {
-	display: flex;
-	gap: 12px;
-	align-items: center;
-	margin-bottom: 16px;
-}
-.formWrap {
-	margin-bottom: 12px;
-}
+
 .loading {
 	color: #666;
 	margin-top: 8px;

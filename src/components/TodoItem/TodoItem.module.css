@@ -7,16 +7,28 @@
 	border: 1px solid #eee;
 	border-radius: 8px;
 }
-.text {
-	flex: 1;
+
+.textLink {
+	display: block;
+	flex-grow: 1;
 	margin-right: 12px;
-	word-break: break-word;
 	font-size: 15px;
+	color: #333;
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
+
+.textLink:hover {
+	text-decoration: underline;
+}
+
 .controls {
 	display: flex;
 	gap: 8px;
 }
+
 .btn {
 	padding: 6px 10px;
 	border-radius: 6px;
