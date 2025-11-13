@@ -13,6 +13,10 @@ export const TodosAPI = {
 		const res = await fetch(`${API_BASE_URL}/todos`);
 		return handleResponse(res);
 	},
+	getTodo: async (id) => {
+		const res = await fetch(`${API_BASE_URL}/todos/${id}`);
+		return handleResponse(res);
+	},
 	createTodo: async (todo) => {
 		const res = await fetch(`${API_BASE_URL}/todos`, {
 			method: 'POST',

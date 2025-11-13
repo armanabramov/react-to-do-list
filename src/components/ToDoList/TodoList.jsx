@@ -1,4 +1,4 @@
-import { TodoItem } from '../../components';
+import { TodoItem } from '..';
 import styles from './TodoList.module.css';
 
 export const TodoList = ({ todos, onUpdate, onDelete }) => {

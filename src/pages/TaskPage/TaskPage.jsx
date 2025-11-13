@@ -1,111 +1,81 @@
-import { useState } from 'react';
-import { useParams, useNavigate, Navigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate, Link, Navigate } from 'react-router-dom';
 import { Loader } from '../../components';
-import itemStyles from '../../components/TodoItem/TodoItem.module.css';
-import pageStyles from './TaskPage.module.css';
+import { Todo, EditTodo } from '../TaskPage/components';
+import styles from './TaskPage.module.css';
+import { TodosAPI } from '../../api';
 
-export const TaskPage = ({ todos, loading, onUpdate, onDelete }) => {
+export const TaskPage = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
 
-	const todo = todos.find((t) => t.id.toString() === id);
-
+	const [todo, setTodo] = useState(null);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(null);
 	const [editing, setEditing] = useState(false);
-	const [text, setText] = useState(todo?.text || '');
-	const [taskError, setTaskError] = useState(null);
+	const [text, setText] = useState('');
 
-	useState(() => {
-		if (todo) {
-			setText(todo.text || '');
-		}
-	}, [todo]);
+	useEffect(() => {
+		if (!id) return;
+		const load = async () => {
+			setLoading(true);
+			setError(null);
+			try {
+				const data = await TodosAPI.getTodo(id);
+				setTodo(data);
+				setText(data?.text || '');
+			} catch (err) {
+				setError(err.message || 'Failed to load task');
+			} finally {
+				setLoading(false);
+			}
+		};
+		load();
+	}, [id]);
 
-	const startEdit = () => {
-		setText(todo.text || '');
-		setEditing(true);
-		setTaskError(null);
-	};
+	if (loading)
+		return (
+			<div className={styles.center}>
+				<Loader />
+			</div>
+		);
+	if (!loading && error) return <Navigate to="/404" replace />;
+	if (!loading && !todo) return null;
 
-	const cancel = () => {
-		setEditing(false);
-		setText(todo.text || '');
-		setTaskError(null);
-	};
-
-	const save = async () => {
-		const val = text.trim();
-		if (!val) {
-			setTaskError('Текст задачи не может быть пустым');
-			return;
-		}
+	const save = async (newText) => {
 		try {
-			await onUpdate(todo.id, { text: val });
+			const updated = await TodosAPI.updateTodo(todo.id, { text: newText });
+			setTodo(updated);
+			setText(updated.text);
 			setEditing(false);
-			setTaskError(null);
 		} catch (err) {
-			setTaskError(err.message);
+			setError(err.message || 'Save failed');
 		}
 	};
 
 	const remove = async () => {
-		if (window.confirm('Вы уверены, что хотите удалить задачу?')) {
-			try {
-				await onDelete(todo.id);
-				navigate('/');
-			} catch (err) {
-				setTaskError(err.message);
-			}
+		try {
+			await TodosAPI.deleteTodo(todo.id);
+			navigate('/');
+		} catch (err) {
+			setError(err.message || 'Delete failed');
 		}
 	};
 
-	const goBack = () => navigate(-1);
-
-	if (loading) {
-		return <Loader />;
-	}
-
-	if (!todo) {
-		return <Navigate to="/404" replace />;
-	}
-
 	return (
-		<div className={pageStyles.taskPage}>
-			<button onClick={goBack} className={pageStyles.backButton}>
-				&larr; Назад
-			</button>
+		<div className={styles.taskPage}>
+			<Link to="/">
+				<button className={styles.backButton}>← назад</button>
+			</Link>
+			<h2 className={styles.title}>Дело #{todo.id}</h2>
 
-			<div className={itemStyles.row}>
-				{!editing ? (
-					<>
-						<div className={pageStyles.fullText}>{todo.text}</div>
-						<div className={itemStyles.controls}>
-							<button className={itemStyles.btn} onClick={startEdit}>
-								Изменить
-							</button>
-							<button className={itemStyles.del} onClick={remove}>
-								Удалить
-							</button>
-						</div>
-					</>
-				) : (
-					<>
-						<textarea
-							className={pageStyles.textarea}
-							value={text}
-							onChange={(e) => setText(e.target.value)}
-						/>
-						<div className={itemStyles.controls}>
-							<button className={itemStyles.btn} onClick={save}>
-								Сохранить
-							</button>
-							<button className={itemStyles.cancel} onClick={cancel}>
-								Отмена
-							</button>
-						</div>
-					</>
-				)}
-			</div>
-			{taskError && <div className={pageStyles.error}>{taskError}</div>}
+			{!editing ? (
+				<Todo todo={todo} setEditing={setEditing} remove={remove} />
+			) : (
+				<EditTodo text={text} save={save} setEditing={setEditing} />
+			)}
+
+			{error && <div className={styles.error}>{error}</div>}
 		</div>
 	);
 };
