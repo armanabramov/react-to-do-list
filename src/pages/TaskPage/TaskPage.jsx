@@ -3,11 +3,13 @@ import { useParams, useNavigate, Link, Navigate } from 'react-router-dom';
 import { Loader } from '../../components';
 import { Todo, EditTodo } from '../TaskPage/components';
 import styles from './TaskPage.module.css';
-import { TodosAPI } from '../../api';
+import { useTodos } from '../../context/useTodos';
 
 export const TaskPage = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
+
+	const { getTodoById, updateTodo, deleteTodo } = useTodos();
 
 	const [todo, setTodo] = useState(null);
 	const [loading, setLoading] = useState(false);
@@ -21,7 +23,7 @@ export const TaskPage = () => {
 			setLoading(true);
 			setError(null);
 			try {
-				const data = await TodosAPI.getTodo(id);
+				const data = await getTodoById(id);
 				setTodo(data);
 				setText(data?.text || '');
 			} catch (err) {
@@ -31,7 +33,7 @@ export const TaskPage = () => {
 			}
 		};
 		load();
-	}, [id]);
+	}, [id, getTodoById]);
 
 	if (loading)
 		return (
@@ -43,8 +45,9 @@ export const TaskPage = () => {
 	if (!loading && !todo) return null;
 
 	const save = async (newText) => {
+		setError(null);
 		try {
-			const updated = await TodosAPI.updateTodo(todo.id, { text: newText });
+			const updated = await updateTodo(todo.id, { text: newText });
 			setTodo(updated);
 			setText(updated.text);
 			setEditing(false);
@@ -54,8 +57,9 @@ export const TaskPage = () => {
 	};
 
 	const remove = async () => {
+		setError(null);
 		try {
-			await TodosAPI.deleteTodo(todo.id);
+			await deleteTodo(todo.id);
 			navigate('/');
 		} catch (err) {
 			setError(err.message || 'Delete failed');
