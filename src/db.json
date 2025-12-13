@@ -1,24 +1,3 @@
 {
-  "todos": [
-    {
-      "text": "А",
-      "completed": false,
-      "id": 1
-    },
-    {
-      "text": "Б",
-      "completed": false,
-      "id": 2
-    },
-    {
-      "text": "В",
-      "completed": false,
-      "id": 3
-    },
-    {
-      "text": "А",
-      "completed": false,
-      "id": 4
-    }
-  ]
+  "todos": []
 }

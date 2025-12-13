@@ -1,14 +1,17 @@
+import { useDispatch } from 'react-redux';
+import { addTodo } from '../../store/todos/todoThunks';
 import { useState } from 'react';
 import styles from './TodoForm.module.css';
 
-export const TodoForm = ({ onAdd }) => {
+export const TodoForm = () => {
+	const dispatch = useDispatch();
 	const [text, setText] = useState('');
 
 	const submit = (e) => {
 		e.preventDefault();
-		const val = text.trim();
-		if (!val) return;
-		onAdd(val);
+		const value = text.trim();
+		if (!value) return;
+		dispatch(addTodo(value));
 		setText('');
 	};
 

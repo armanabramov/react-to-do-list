@@ -1,39 +1,39 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link, Navigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getTodoById, updateTodo, deleteTodo } from '../../store/todos/todoThunks';
+import {
+	selectCurrentTodo,
+	selectLoading,
+	selectError,
+} from '../../store/todos/todoSelectors';
 import { Loader } from '../../components';
 import { Todo, EditTodo } from '../TaskPage/components';
 import styles from './TaskPage.module.css';
-import { useTodos } from '../../context/useTodos';
 
 export const TaskPage = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 
-	const { getTodoById, updateTodo, deleteTodo } = useTodos();
+	const todo = useSelector(selectCurrentTodo);
+	const loading = useSelector(selectLoading);
+	const error = useSelector(selectError);
 
-	const [todo, setTodo] = useState(null);
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState(null);
 	const [editing, setEditing] = useState(false);
 	const [text, setText] = useState('');
 
 	useEffect(() => {
-		if (!id) return;
-		const load = async () => {
-			setLoading(true);
-			setError(null);
-			try {
-				const data = await getTodoById(id);
-				setTodo(data);
-				setText(data?.text || '');
-			} catch (err) {
-				setError(err.message || 'Failed to load task');
-			} finally {
-				setLoading(false);
-			}
-		};
-		load();
-	}, [id, getTodoById]);
+		if (id) {
+			dispatch(getTodoById(id));
+		}
+	}, [id, dispatch]);
+
+	useEffect(() => {
+		if (todo) {
+			setText(todo.text || '');
+		}
+	}, [todo]);
 
 	if (loading)
 		return (
@@ -42,28 +42,16 @@ export const TaskPage = () => {
 			</div>
 		);
 	if (!loading && error) return <Navigate to="/404" replace />;
-	if (!loading && !todo) return null;
+	if (!todo) return null;
 
 	const save = async (newText) => {
-		setError(null);
-		try {
-			const updated = await updateTodo(todo.id, { text: newText });
-			setTodo(updated);
-			setText(updated.text);
-			setEditing(false);
-		} catch (err) {
-			setError(err.message || 'Save failed');
-		}
+		await dispatch(updateTodo(todo.id, { text: newText }));
+		setEditing(false);
 	};
 
 	const remove = async () => {
-		setError(null);
-		try {
-			await deleteTodo(todo.id);
-			navigate('/');
-		} catch (err) {
-			setError(err.message || 'Delete failed');
-		}
+		await dispatch(deleteTodo(todo.id));
+		navigate('/');
 	};
 
 	return (

@@ -8,7 +8,8 @@ export const EditTodo = ({ text: initialText, save, setEditing }) => {
 	}, [initialText]);
 
 	const onSave = () => {
-		save(textEdit);
+		if (!textEdit.trim()) return;
+		save(textEdit.trim());
 	};
 
 	return (

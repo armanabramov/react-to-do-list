@@ -1,48 +1,41 @@
-import { useState } from 'react';
-import styles from './MainPage.module.css';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTodos, updateTodo, deleteTodo } from '../../store/todos/todoThunks';
+import { selectLoading, selectError, selectTodos } from '../../store/todos/todoSelectors';
+import { selectSearch } from '../../store/search';
+import { selectSort } from '../../store/sort';
 import { TodoForm, TodoList, SearchBar, SortToggle, Loader } from '../../components';
-import { useTodos } from '../../context/useTodos';
+import styles from './MainPage.module.css';
 
 export const MainPage = () => {
-	const { todos, loading, error, addTodo, updateTodo, deleteTodo } = useTodos();
+	const dispatch = useDispatch();
 
-	const [searchPhrase, setSearchPhrase] = useState('');
-	const [alphabetSort, setAlphabetSort] = useState(false);
+	const todos = useSelector(selectTodos);
+	const search = useSelector(selectSearch);
+	const sort = useSelector(selectSort);
+	const loading = useSelector(selectLoading);
+	const error = useSelector(selectError);
 
-	const handleAdd = async (text) => {
-		try {
-			await addTodo(text);
-		} catch {
-			// handled in context
-		}
-	};
+	useEffect(() => {
+		dispatch(fetchTodos());
+	}, [dispatch]);
 
 	const handleUpdate = async (id, updates) => {
-		try {
-			await updateTodo(id, updates);
-		} catch {
-			// handled in context
-		}
+		dispatch(updateTodo(id, updates));
 	};
 
 	const handleDelete = async (id) => {
-		try {
-			await deleteTodo(id);
-		} catch {
-			// handled in context
-		}
+		dispatch(deleteTodo(id));
 	};
 
-	const query = searchPhrase.trim().toLowerCase();
+	const query = search.trim().toLowerCase();
+
 	const filtered = query
-		? todos.filter((todo) => (todo.text || '').toLowerCase().includes(query))
+		? todos.filter((t) => (t.text || '').toLowerCase().includes(query))
 		: todos;
-	const displayed = alphabetSort
-		? [...filtered].sort((a, b) => {
-				const ta = (a.text || '').toLowerCase();
-				const tb = (b.text || '').toLowerCase();
-				return ta.localeCompare(tb);
-			})
+
+	const displayedTodos = sort
+		? [...filtered].sort((a, b) => (a.text || '').localeCompare(b.text || ''))
 		: filtered;
 
 	return (
@@ -50,11 +43,11 @@ export const MainPage = () => {
 			<div className={styles.container}>
 				<h1 className={styles.title}>Todo (React + Vite)</h1>
 
-				<TodoForm onAdd={handleAdd} />
+				<TodoForm />
 
 				<div className={styles.controlsRow}>
-					<SearchBar onSearch={setSearchPhrase} placeholder="Поиск дел..." />
-					<SortToggle active={alphabetSort} onToggle={() => setAlphabetSort((v) => !v)} />
+					<SearchBar />
+					<SortToggle />
 				</div>
 
 				{loading && (
@@ -64,7 +57,11 @@ export const MainPage = () => {
 				)}
 				{error && <div className={styles.error}>{error}</div>}
 
-				<TodoList todos={displayed} onUpdate={handleUpdate} onDelete={handleDelete} />
+				<TodoList
+					todos={displayedTodos}
+					onUpdate={handleUpdate}
+					onDelete={handleDelete}
+				/>
 			</div>
 		</>
 	);
